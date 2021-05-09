@@ -14,6 +14,7 @@ Complete the following steps to start a new project (NEW-PROJECT-NAME):
 6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name": "express-boilerplate",`
 7. NPM install knex
 8. npm i postgrator-cli@3.2.0 -D
+9. npm install xss
 
 ## Scripts
 

@@ -1,11 +1,11 @@
 import { Loader } from '@googlemaps/js-api-loader';
 import * as THREE from 'three';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const apiOptions = {
-  apiKey: 'Google API Key',
+  apiKey: process.env.API_KEY,
   version: "beta",
-  map_ids: ["Map ID"]
+  map_ids: process.env.MAP_ID
 };
 
 const mapOptions = {
@@ -13,10 +13,10 @@ const mapOptions = {
   "heading": 0,
   "zoom": 17,
   "center": { lat: 42.360850, lng: -71.058571 },
-  "mapId": "Map ID"    
+  "mapId": process.env.MAP_ID
 }
 
-async function initMap() {    
+async function initMap() {
   const mapDiv = document.getElementById("map");
   const apiLoader = new Loader(apiOptions);
   await apiLoader.load();
@@ -24,34 +24,34 @@ async function initMap() {
 }
 
 
-function initWebglOverlayView(map) {  
+function initWebglOverlayView(map) {
   let scene, renderer, camera, loader;
   const webglOverlayView = new google.maps.WebglOverlayView();
-  
-  webglOverlayView.onAdd = () => {   
+
+  webglOverlayView.onAdd = () => {
     // set up the scene
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera();
-    const ambientLight = new THREE.AmbientLight( 0xffffff, 0.75 ); // soft white light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75); // soft white light
     scene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.25);
     directionalLight.position.set(0.5, -1, 0.5);
     scene.add(directionalLight);
-  
+
     // load the model    
-    loader = new GLTFLoader();               
+    loader = new GLTFLoader();
     const source = "pin.gltf";
     loader.load(
       source,
-      gltf => {      
-        gltf.scene.scale.set(25,25,25);
-        gltf.scene.rotation.x = 180 * Math.PI/180; // rotations are in radians
-        scene.add(gltf.scene);           
+      gltf => {
+        gltf.scene.scale.set(25, 25, 25);
+        gltf.scene.rotation.x = 180 * Math.PI / 180; // rotations are in radians
+        scene.add(gltf.scene);
       }
     );
   }
-  
-  webglOverlayView.onContextRestored = (gl) => {        
+
+  webglOverlayView.onContextRestored = (gl) => {
     // create the three.js renderer, using the
     // maps's WebGL rendering context.
     renderer = new THREE.WebGLRenderer({
@@ -62,14 +62,14 @@ function initWebglOverlayView(map) {
     renderer.autoClear = false;
 
     // wait to move the camera until the 3D model loads    
-    loader.manager.onLoad = () => {        
+    loader.manager.onLoad = () => {
       renderer.setAnimationLoop(() => {
         map.moveCamera({
           "tilt": mapOptions.tilt,
           "heading": mapOptions.heading,
           "zoom": mapOptions.zoom
-        });            
-        
+        });
+
         // rotate the map 360 degrees 
         if (mapOptions.tilt < 67.5) {
           mapOptions.tilt += 0.5
@@ -78,7 +78,7 @@ function initWebglOverlayView(map) {
         } else {
           renderer.setAnimationLoop(null)
         }
-      });        
+      });
     }
   }
 
@@ -86,9 +86,9 @@ function initWebglOverlayView(map) {
     // update camera matrix to ensure the model is georeferenced correctly on the map     
     const matrix = coordinateTransformer.fromLatLngAltitude(mapOptions.center, 120);
     camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
-    
-    webglOverlayView.requestRedraw();      
-    renderer.render(scene, camera);                  
+
+    webglOverlayView.requestRedraw();
+    renderer.render(scene, camera);
 
     // always reset the GL state
     renderer.resetState();
@@ -96,7 +96,7 @@ function initWebglOverlayView(map) {
   webglOverlayView.setMap(map);
 }
 
-(async () => {        
+(async () => {
   const map = await initMap();
-  initWebglOverlayView(map);    
+  initWebglOverlayView(map);
 })();

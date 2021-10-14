@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "develop": "webpack-dev-server --open --mode development --config config/webpack.config.dev.js",
     "start": "webpack serve --progress --hot --open",
     "test": "echo \"Error: no test specified\" && exit 1",
     "predeploy": "npm audit"
